@@ -4,22 +4,26 @@
 #include <chrono>
 #include <windows.h>
 #include <cstdlib> 
-#include <ctime> 
+#include <ctime>
+#include <algorithm>
 
 using namespace std;
 
 string centerText(string text);
 bool changeResolution(int width, int height);
+void loadResoltions();
+
+vector<string> resolutions = {};
 
 int main()
 {
-	vector<string> resolutions = { "2560x1440", "1920x1080", "1366x768", "1600x900", "1024x768", "1280x960", "1280x720", "3840x2160", "3440x1440", "2560x1080", "2560x1600", "1920x1200", "1680x1050", "1440x900", "1280x1024", "1024x600", "800x600", "640x480"};
+	loadResoltions();
 
 	int counter = 0, current = 0;
 	
 	// Random Number Generation
 	srand(static_cast<unsigned>(time(0)));
-	int random = rand() % (30 - 10 + 1) + 10;
+	int random = rand() % ((resolutions.size() * 2) - (resolutions.size() / 2) + 1) + (resolutions.size() / 2);
 
 	// Start Screen
 	cout << " " << endl;
@@ -108,9 +112,19 @@ int main()
 	cout << "|                                             |" << endl;
 	cout << "+---------------------------------------------+" << endl;
 
-	system("pause");
-
 	return 0;
+}
+
+void loadResoltions(){
+	DEVMODE dm = {};
+	dm.dmSize = sizeof(dm);
+
+	for (int i = 0; EnumDisplaySettings(NULL, i, &dm); i++) {
+		string res = to_string(dm.dmPelsWidth) + "x" + to_string(dm.dmPelsHeight);
+		resolutions.push_back(res);
+	}
+
+	resolutions.erase(unique(resolutions.begin(), resolutions.end()), resolutions.end());
 }
 
 bool changeResolution(int width, int height){
